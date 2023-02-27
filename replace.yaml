@@ -1,0 +1,61 @@
+---
+- hosts: master
+  ignore_unreachable: yes
+  ignore_errors: yes
+  remote_user: root
+  vars_files:
+    - variables.yml
+  tasks:
+    - name: This module will replace all instances of a pattern within a file
+      ansible.builtin.replace:
+        path: ~/ansible/kubernetes/metallb/metallb-config.yaml
+        regexp: 'MetalLB_IPAddressPool'
+        replace: '{{MetalLB_IPAddressPool}}'
+      tags: metallb
+
+    - name: This module will replace all instances of a pattern within a file
+      ansible.builtin.replace:
+        path: ~/ansible/kubernetes/nfs-StorageClass/3nfs.yaml
+        regexp: 'IP_NFS_SERVER'
+        replace: '{{IP_NFS_SERVER}}'
+      tags: nfs
+
+    - name: This module will replace all instances of a pattern within a file
+      ansible.builtin.replace:
+        path: ~/ansible/kubernetes/traefik/dashboardtraefik.yaml
+        regexp: 'nginx.example.site'
+        replace: '{{ domain }}'
+      tags: traefik
+    - name: This module will replace all instances of a pattern within a file
+      ansible.builtin.replace:
+        path: ~/ansible/kubernetes/traefik/ingressroute.yaml
+        regexp: 'nginx.example.site'
+        replace: '{{ domain }}'
+      tags: traefik
+
+    - name: This module will replace all instances of a pattern within a file
+      ansible.builtin.replace:
+        path: ~/ansible/kubernetes/basesvc/core/identityserver.yaml
+        regexp: 'nginx.example.site'
+        replace: '{{ domain }}'
+      tags: basesvc
+
+    - name: This module will replace all instances of a pattern within a file
+      ansible.builtin.replace:
+        path: ~/ansible/kubernetes/basesvc/core/identityserver.yaml
+        regexp: 'nginx-sso.example.site'
+        replace: '{{ domain-sso }}'
+      tags: basesvc
+
+    - name: This module will replace all instances of a pattern within a file
+      ansible.builtin.replace:
+        path: ~/ansible/kubernetes/basesvc/proxy.yaml
+        regexp: 'nginx.example.site'
+        replace: '{{ domain }}'
+      tags: basesvc
+    - name: This module will replace all instances of a pattern within a file
+      ansible.builtin.replace:
+        path: ~/ansible/kubernetes/basesvc/proxy.yaml
+        regexp: 'nginx-sso.example.site'
+        replace: '{{ domain-sso }}'
+      tags: basesvc

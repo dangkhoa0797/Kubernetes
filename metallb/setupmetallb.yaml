@@ -1,0 +1,21 @@
+---
+- hosts: master
+  become: true
+  ignore_unreachable: yes
+  ignore_errors: yes
+  tasks:
+    - name: kube-proxy configmap
+      shell: sh /root/ansible/kubernetes/metallb/metallb.sh
+    - name: apply metallb
+      shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/manifests/metallb-native.yaml
+
+    - name: Wait until the MetalLB pods (controller and speakers) are ready
+      shell: |
+        kubectl wait --namespace metallb-system \
+                        --for=condition=ready pod \
+                        --selector=app=metallb \
+                        --timeout=90s
+
+    - name: config metallb
+      shell: kubectl apply -f /root/ansible/kubernetes/metallb/metallb-config.yaml
+        

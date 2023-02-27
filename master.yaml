@@ -1,0 +1,65 @@
+---
+- hosts: master
+  become: true
+  ignore_unreachable: yes
+  ignore_errors: yes
+  tasks:
+
+#  - name: pull images
+#    shell: kubeadm config images pull
+  - name: Initialize the Kubernetes cluster using kubeadm
+    shell: kubeadm init --pod-network-cidr=10.244.0.0/16
+    tags: init
+
+  - name: Remove old config
+    shell: rm -rf $HOME/.kube/config
+
+  - name: Setup kubeconfig for  user
+    shell: "{{ item }}"
+    with_items:
+      - mkdir -p $HOME/.kube
+      - sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    tags: s1
+
+  - name: Setup kubeconfig for  user 2
+    shell: sudo chown $(id -u):$(id -g) $HOME/.kube/config
+    tags: s2
+
+  - name: Generate join command
+    shell: kubeadm token create --print-join-command
+    register: join_command
+    tags: s3
+
+  - name: Copy join command to local file
+    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+    tags: s3
+
+  - name: Install calico flannel network
+    shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+    tags: s4
+
+  - name: Install helm
+    shell: |
+      curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+      chmod 700 get_helm.sh
+      ./get_helm.sh
+
+  - name: Create secret docker-registry dockerhubdtttvn
+    command: kubectl create secret docker-registry dockerhubdtttvn --docker-server=************* --docker-username=admin --docker-password=*********** --docker-email=admin@.com.vn
+    tags: dockerhubdtttvn
+
+
+#    - name: used ufw
+#      shell: |
+#        sudo ufw default deny incoming
+#        sudo ufw default allow outgoing
+#        sudo ufw allow OpenSSH
+#        sudo ufw allow 80
+#        sudo ufw allow 443
+#        sudo ufw allow 6443/tcp
+#        sudo ufw allow 2379/tcp
+#        sudo ufw allow 2380/tcp
+#        sudo ufw allow 10250/udp
+#        sudo ufw allow 10259/udp
+#        sudo ufw allow 10257/tcp
+#        sudo ufw --force enable

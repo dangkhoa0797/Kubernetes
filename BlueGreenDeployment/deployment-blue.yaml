@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: bluegreen
+  name:  deployment-demo
+  labels:
+    name:  deployment-demo
+    deployment: blue
+    version: 1.0.0
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      app:  deployment-demo
+      deployment: blue
+      version: 1.0.0
+  template:
+    metadata:
+      labels:
+        app:  deployment-demo
+        deployment: blue
+        version: 1.0.0
+    spec:
+      containers:
+      - image:  khoa0797/webdemo:blue
+        name:  deployment-demo       
+        ports:
+        - containerPort:  80
+          name:  my-name
+        resources:
+          requests:
+            cpu: "250m"
+          limits:
+            cpu: "500m"
+        imagePullPolicy: Always

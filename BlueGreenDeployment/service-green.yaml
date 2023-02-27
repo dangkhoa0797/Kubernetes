@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: bluegreen
+  name:  deployment-demo-green
+spec:
+  selector:
+    app:  deployment-demo-green
+    deployment: green
+    version: 1.0.1
+  type:  LoadBalancer
+  ports:
+  - name:  name-of-the-port
+    port:  8088 #port ra ngoai
+    targetPort:  80 #port cua container

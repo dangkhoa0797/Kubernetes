@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clear-nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: clear-nginx
+  template:
+    metadata:
+      labels:
+        app: clear-nginx
+    spec:
+      containers:
+      - name: clear-nginx
+        image: clearlinux/nginx
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: web-content
+        ports:
+        - containerPort: 80
+      volumes:
+        - name: web-content
+          hostPath: # hostPath volume
+            path: /volumes/clear-nginx/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clear-nginx-service
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30050
+  selector:
+    app: clear-nginx
+  type: NodePort
