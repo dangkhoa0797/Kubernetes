@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    component: nginx
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      component: nginx
+  template:
+    metadata:
+      labels:
+        component: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          volumeMounts:
+            - name: log
+              mountPath: /var/log/nginx
+        - name: filebeat
+          image: elastic/filebeat:7.16.3
+          args:
+            - -c
+            - /etc/filebeat/conf.yaml
+            - -e
+          volumeMounts:
+            - name: filebeat-config
+              mountPath: /etc/filebeat
+            - name: log
+              mountPath: /var/log/nginx
+      volumes:
+        - name: log
+          emptyDir: {}
+        - name: filebeat-config
+          configMap:
+            name: filebeat-config
